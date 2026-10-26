@@ -1,0 +1,72 @@
+/* 58 mm thermal strip: monospace, black on white, no decoration. */
+.folio {
+  width: 54mm;
+  margin: 0 auto;
+  padding: 2mm 0;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 10pt;
+  line-height: 1.3;
+  color: #000;
+  background: #fff;
+}
+.folio hr {
+  border: 0;
+  border-top: 1px dashed #000;
+  margin: 2mm 0;
+}
+.folio-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 2mm;
+}
+.folio-row span:last-child {
+  text-align: right;
+}
+.folio-center {
+  text-align: center;
+}
+.folio-big {
+  font-size: 18pt;
+  font-weight: 700;
+}
+.folio-bold {
+  font-weight: 700;
+}
+.folio-small {
+  font-size: 8pt;
+}
+.folio-qr {
+  display: block;
+  width: 32mm;
+  height: 32mm;
+  margin: 2mm auto 0;
+  image-rendering: pixelated;
+}
+.folio-noprint {
+  margin-top: 4mm;
+  width: 100%;
+  min-height: 56px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  font-size: 12pt;
+  font-weight: 700;
+}
+
+@media print {
+  @page {
+    size: 58mm 200mm;
+    margin: 0;
+  }
+  html,
+  body {
+    background: #fff !important;
+    width: 58mm;
+  }
+  body > div {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .folio-noprint {
+    display: none;
+  }
+}
