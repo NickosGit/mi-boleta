@@ -20,4 +20,19 @@ Decisions:
 - **No service-role key.** Not in `.env.example`, not in code.
 - **Palette**: high-contrast light; amber accent. No colors that judge people. The green ESTABLE chip (F3) is about the scale, not a person.
 
-**Tomorrow's first move:** finish Deploy 1 (Supabase + Google + Vercel, `docs/SETUP.md`), then F2 (schema, RLS, seed).
+## 2026-10-25 · Session 1 · F2–F7 (speed run)
+
+The user asked to finish in ~30 min, so F2–F7 were built in one pass with one commit each, without stopping after every feature.
+
+- **Boletas are written only through `security definer` functions** (`emitir_boleta`, `marcar_entrega`, `anular_boleta`, `registrar_desacuerdo[_operador]`). Authenticated users have SELECT only; INSERT/UPDATE/DELETE are revoked, so a browser DELETE fails with "permission denied" instead of silently affecting 0 rows.
+- **`emision_ms` uses server clocks only**: `estable_at` is the `created_at` of the 5th stable reading (set by Postgres), and the function subtracts it from `clock_timestamp()`. Only scale boletas have it; photo/manual boletas don't have an ESTABLE moment, and the metrics page says so.
+- **Stability** = last 5 readings within ±0.05 kg of their mean, platform > 0.1 kg (`lib/stability.ts`, unit-tested with σ 0.02 and σ 0.3).
+- **Seed**: 3 invented acopios in Iztapalapa owned by placeholder `auth.users` rows (`*@mi-boleta.invalid`, no password, can't sign in), so the zone median has 3 included acopios. A "Cargar datos de ejemplo" button runs `cargar_ejemplo()` on the operator's own acopio (10 aliases, prices, 2 weeks, last week's PET sales at 70% → "inconsistente").
+- **Median**: includes acopios in the zone with ≥ 5 non-voided boletas of that material this week; null under 3; always prints how many were excluded and why.
+- **Balance view** is `security_invoker`, tolerance in `balance_tolerancia()` (0.10). Includes disputed, excludes voided, and says so.
+- **Vision**: photo goes to the private `displays/{acopio_id}/` bucket first (evidence), then only the image + fixed prompt to Gemini; zod-validated; analog/illegible/low-confidence → manual with focus. Editing an AI-prefilled weight switches `fuente` to `manual`. Limit 20 calls/user/hour via the `vision_llamadas` table (survives cold starts, unlike last week's in-memory limiter).
+- **Public pages** use a session-less anon client, so `/b/[token]` behaves the same signed-in or not. Malformed tokens never hit the DB; unknown and malformed both say "Boleta no encontrada".
+
+**Pending:** run migrations 0002 + 0003, Vercel deploy, PACKET §14 test pass, one bug → `fix:` commit.
+
+**Tomorrow's first move:** PACKET §14 test pass on the live URL.
