@@ -2,7 +2,12 @@
 
 ## 2026-10-25 · Session 1 · F1
 
-**Missing packet.** `IMPLEMENTATION_PROMPT.md` says to read `docs/PACKET.md` (sections 8, 12 and 14), but no Week 11 packet arrived; the only `PACKET.md` in Downloads is Week 10 (Mi Quincena). The team Blueprint (`docs/BLUEPRINT_team.pdf`, draft) is here and supplies the conditions. F1 doesn't depend on the packet. **F2 (seed), F4 (zod limits, PACKET §12) and F7 (17 tests, PACKET §14) do**, so the packet is needed before F2.
+**Packet arrived after the F1 commit** and is now in `docs/PACKET.md`. Reconciled with F1:
+- §14 test 1 (Google login/logout, `/app` → `/login` without a session) is what F1 built.
+- §12 limits (kg 0.01–2000, alias 2–40 letters/spaces/hyphen, optional 10-digit phone, note ≤ 280, void reason ≤ 140, JPEG/PNG ≤ 5 MB) apply from F2/F4 on. The packet sets no limit for the acopio name, so 2–80 stays.
+- §4 mockup accent is navy `#1F3A5F`: `--ink` and `themeColor` switched to it.
+- §12 says the service-role key may live in Vercel env; the app still doesn't use it.
+- The Blueprint is still a draft (Pepenador rails vs. water vote pending). The packet assumes Pepenador rails; so does this build.
 
 Decisions:
 
@@ -11,8 +16,8 @@ Decisions:
 - **The acopios table ships in F1** (`supabase/migrations/0001_acopios.sql`), because onboarding needs it. RLS on; select/insert/update only where `owner_id = auth.uid()`; no DELETE policy; `anon` has no grants. F2 adds the rest in `0002_...`.
 - **`zona` is one of the 16 CDMX alcaldías, picked from a list**, not free text. The zone median (F4) needs matching values, and a self-declared alcaldía is not geolocation. The form says so ("No usamos tu ubicación").
 - **One acopio per operator in the UI.** The schema allows several (the spec has no unique constraint), the app uses the oldest one, and the server action skips the insert if one already exists, so a double tap can't create two.
-- **Acopio name limit 2–80 characters**: a provisional value until PACKET §12 arrives.
+- **Acopio name limit 2–80 characters** (PACKET §12 doesn't cover it).
 - **No service-role key.** Not in `.env.example`, not in code.
 - **Palette**: high-contrast light; amber accent. No colors that judge people. The green ESTABLE chip (F3) is about the scale, not a person.
 
-**Tomorrow's first move:** get the Week 11 `PACKET.md` into `docs/`, then F2 (schema, RLS, seed).
+**Tomorrow's first move:** finish Deploy 1 (Supabase + Google + Vercel, `docs/SETUP.md`), then F2 (schema, RLS, seed).
