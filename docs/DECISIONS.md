@@ -33,6 +33,11 @@ The user asked to finish in ~30 min, so F2–F7 were built in one pass with one 
 - **Vision**: photo goes to the private `displays/{acopio_id}/` bucket first (evidence), then only the image + fixed prompt to Gemini; zod-validated; analog/illegible/low-confidence → manual with focus. Editing an AI-prefilled weight switches `fuente` to `manual`. Limit 20 calls/user/hour via the `vision_llamadas` table (survives cold starts, unlike last week's in-memory limiter).
 - **Public pages** use a session-less anon client, so `/b/[token]` behaves the same signed-in or not. Malformed tokens never hit the DB; unknown and malformed both say "Boleta no encontrada".
 
-**Pending:** run migrations 0002 + 0003, Vercel deploy, PACKET §14 test pass, one bug → `fix:` commit.
+### Bugs from the test pass (fixed in `fix:` commit)
+
+1. **Median exclusions under-counted (test 16, condition 5).** `mediana_precio` joined `precios` with an inner join, so a zone acopio with no price for the material disappeared from both counts and the "excluye N acopios" line was short. Fixed in `0004_fix_mediana_exclusiones.sql` (left join; excluded = every zone acopio not included) and the line now says "sin precio o con menos de 5 boletas".
+2. **Metrics silently capped at 1000 boletas.** PostgREST returns at most 1000 rows per request, so `/app/metricas` would compute over a truncated set while claiming the full count. Now pages through all rows.
+
+**Test pass so far (live URL):** 11 ✅ (fake and malformed token → "Boleta no encontrada"), 12 ✅ for anon (boletas/pepenadores → permission denied), 14 ✅ (DELETE on boletas → permission denied), 16 ✅ (Iztapalapa PET median $5.62, 3 included; empty zone → null), 17 ✅ (secret grep zero hits). Internal RPCs (`sembrar_ejemplo`, `cargar_ejemplo`) denied to anon. Tests 1–10, 13, 15 need a signed-in operator.
 
 **Tomorrow's first move:** PACKET §14 test pass on the live URL.

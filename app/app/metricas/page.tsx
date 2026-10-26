@@ -11,12 +11,20 @@ export default async function MetricasPage() {
   const acopio = await getMyAcopio(supabase);
   if (!acopio) redirect("/app");
 
-  const { data } = await supabase
-    .from("boletas")
-    .select("fuente, entrega, estado, emision_ms")
-    .eq("acopio_id", acopio.id)
-    .limit(5000);
-  const all = data ?? [];
+  // PostgREST caps each response at 1000 rows: page through all of them.
+  type Row = { fuente: string; entrega: string; estado: string; emision_ms: number | null };
+  const all: Row[] = [];
+  const PAGE = 1000;
+  for (let from = 0; ; from += PAGE) {
+    const { data } = await supabase
+      .from("boletas")
+      .select("fuente, entrega, estado, emision_ms")
+      .eq("acopio_id", acopio.id)
+      .order("created_at")
+      .range(from, from + PAGE - 1);
+    all.push(...(data ?? []));
+    if (!data || data.length < PAGE) break;
+  }
   const vivas = all.filter((b) => b.estado !== "anulada");
   const ms = vivas.filter((b) => b.fuente === "bascula_simulada" && b.emision_ms !== null).map((b) => b.emision_ms as number);
   const s = (v: number | null) => (v === null ? "—" : `${(v / 1000).toFixed(1)} s`);

@@ -21,7 +21,7 @@ export function fuenteTexto(b: BoletaPublica) {
 
 export function medianaTexto(m: Mediana | null, materialLabel: string, zona: string): string {
   if (!m) return "Mediana de la zona no disponible.";
-  const excl = `excluye ${m.acopios_excluidos} acopio${m.acopios_excluidos === 1 ? "" : "s"} con menos de 5 boletas de ${materialLabel} esta semana`;
+  const excl = `excluye ${m.acopios_excluidos} acopio${m.acopios_excluidos === 1 ? "" : "s"} sin precio o con menos de 5 boletas de ${materialLabel} esta semana`;
   if (m.mediana === null) {
     return `Mediana de ${zona}: no se muestra porque solo ${m.acopios_incluidos} acopio${m.acopios_incluidos === 1 ? "" : "s"} tiene${m.acopios_incluidos === 1 ? "" : "n"} datos suficientes (se necesitan 3); ${excl}.`;
   }
