@@ -30,3 +30,13 @@ export async function createAcopio(_prev: OnboardingState, formData: FormData): 
   revalidatePath("/app", "layout");
   redirect("/app");
 }
+
+/** Loads the invented example set into the caller's own acopio (once). */
+export async function cargarEjemplo(): Promise<string> {
+  const { supabase, user } = await getUser();
+  if (!supabase || !user) return "Tu sesión terminó.";
+  const { error } = await supabase.rpc("cargar_ejemplo");
+  if (error) return "No se pudieron cargar.";
+  revalidatePath("/app", "layout");
+  return "Datos de ejemplo cargados.";
+}
